@@ -1,4 +1,3 @@
-
 import { LayoutDashboard, FileText, Settings } from 'lucide-react';
 import { Logo } from '../atoms/Logo';
 import { NavItem } from '../molecules/NavItem';

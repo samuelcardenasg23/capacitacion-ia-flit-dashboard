@@ -1,4 +1,3 @@
-
 import { Typography } from '@/components/atoms/Typography';
 import { Card, CardContent } from '@/components/atoms/Card';
 

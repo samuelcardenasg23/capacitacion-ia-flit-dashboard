@@ -1,10 +1,16 @@
-
 import { LogOut, User as UserIcon } from 'lucide-react';
 import { Button } from '../atoms/Button';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 export function Header() {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
+
+  const handleLogout = () => {
+    logout();
+    navigate('/login');
+  };
 
   return (
     <header className="flex h-16 items-center justify-between border-b bg-card px-6">
@@ -16,7 +22,7 @@ export function Header() {
           </div>
           {user?.name}
         </div>
-        <Button variant="ghost" size="icon" onClick={logout} title="Logout">
+        <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
           <LogOut size={20} />
         </Button>
       </div>

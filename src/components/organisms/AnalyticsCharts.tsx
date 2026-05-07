@@ -1,5 +1,15 @@
-
-import { LineChart, Line, BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from 'recharts';
 import { Card, CardContent, CardHeader, CardTitle } from '../atoms/Card';
 import type { ChartData } from '@/types';
 
@@ -22,7 +32,13 @@ export function AnalyticsCharts({ data }: AnalyticsChartsProps) {
               <YAxis axisLine={false} tickLine={false} tickFormatter={(val) => `$${val}`} />
               <Tooltip />
               <Legend />
-              <Line type="monotone" dataKey="revenue" stroke="#18181b" strokeWidth={2} activeDot={{ r: 8 }} />
+              <Line
+                type="monotone"
+                dataKey="revenue"
+                stroke="#18181b"
+                strokeWidth={2}
+                activeDot={{ r: 8 }}
+              />
             </LineChart>
           </ResponsiveContainer>
         </CardContent>

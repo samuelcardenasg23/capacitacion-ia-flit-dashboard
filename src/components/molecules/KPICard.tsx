@@ -1,4 +1,3 @@
-
 import { Card, CardContent, CardHeader, CardTitle } from '../atoms/Card';
 import type { KPIData } from '@/types';
 import { ArrowDownRight, ArrowUpRight, Minus } from 'lucide-react';
@@ -20,11 +19,13 @@ export function KPICard({ data }: KPICardProps) {
       </CardHeader>
       <CardContent>
         <div className="text-2xl font-bold">{data.value}</div>
-        <p className={cn('text-xs flex items-center mt-1', {
-          'text-green-500': isUp,
-          'text-red-500': isDown,
-          'text-muted-foreground': !isUp && !isDown,
-        })}>
+        <p
+          className={cn('text-xs flex items-center mt-1', {
+            'text-green-500': isUp,
+            'text-red-500': isDown,
+            'text-muted-foreground': !isUp && !isDown,
+          })}
+        >
           <TrendIcon className="mr-1 h-4 w-4" />
           {Math.abs(data.change)}% from last month
         </p>

@@ -18,8 +18,32 @@ export const mockChartData: ChartData[] = [
 ];
 
 export const mockReports: ReportItem[] = [
-  { id: '1', date: '2026-05-01', author: 'Alice Smith', status: 'published', title: 'Q1 Performance' },
-  { id: '2', date: '2026-05-03', author: 'Bob Jones', status: 'draft', title: 'User Growth Analysis' },
-  { id: '3', date: '2026-04-20', author: 'Charlie Brown', status: 'archived', title: 'Server Costs 2025' },
-  { id: '4', date: '2026-05-05', author: 'Alice Smith', status: 'published', title: 'Marketing Campaign ROI' },
+  {
+    id: '1',
+    date: '2026-05-01',
+    author: 'Alice Smith',
+    status: 'published',
+    title: 'Q1 Performance',
+  },
+  {
+    id: '2',
+    date: '2026-05-03',
+    author: 'Bob Jones',
+    status: 'draft',
+    title: 'User Growth Analysis',
+  },
+  {
+    id: '3',
+    date: '2026-04-20',
+    author: 'Charlie Brown',
+    status: 'archived',
+    title: 'Server Costs 2025',
+  },
+  {
+    id: '4',
+    date: '2026-05-05',
+    author: 'Alice Smith',
+    status: 'published',
+    title: 'Marketing Campaign ROI',
+  },
 ];

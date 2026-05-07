@@ -1,4 +1,3 @@
-
 import { Activity } from 'lucide-react';
 import { cn } from '@/utils/cn';
 

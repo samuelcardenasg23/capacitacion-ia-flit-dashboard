@@ -45,31 +45,48 @@ export function SortableTable({ data }: SortableTableProps) {
           <table className="w-full caption-bottom text-sm">
             <thead className="[&_tr]:border-b">
               <tr className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer" onClick={() => handleSort('title')}>
+                <th
+                  className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer"
+                  onClick={() => handleSort('title')}
+                >
                   <div className="flex items-center">Title {getSortIcon('title')}</div>
                 </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer" onClick={() => handleSort('author')}>
+                <th
+                  className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer"
+                  onClick={() => handleSort('author')}
+                >
                   <div className="flex items-center">Author {getSortIcon('author')}</div>
                 </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer" onClick={() => handleSort('status')}>
+                <th
+                  className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer"
+                  onClick={() => handleSort('status')}
+                >
                   <div className="flex items-center">Status {getSortIcon('status')}</div>
                 </th>
-                <th className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer" onClick={() => handleSort('date')}>
+                <th
+                  className="h-12 px-4 text-left align-middle font-medium text-muted-foreground cursor-pointer"
+                  onClick={() => handleSort('date')}
+                >
                   <div className="flex items-center">Date {getSortIcon('date')}</div>
                 </th>
               </tr>
             </thead>
             <tbody className="[&_tr:last-child]:border-0">
               {sortedData.map((item) => (
-                <tr key={item.id} className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted">
+                <tr
+                  key={item.id}
+                  className="border-b transition-colors hover:bg-muted/50 data-[state=selected]:bg-muted"
+                >
                   <td className="p-4 align-middle font-medium">{item.title}</td>
                   <td className="p-4 align-middle">{item.author}</td>
                   <td className="p-4 align-middle">
-                    <span className={cn('px-2 py-1 rounded-full text-xs font-semibold', {
-                      'bg-green-100 text-green-800': item.status === 'published',
-                      'bg-yellow-100 text-yellow-800': item.status === 'draft',
-                      'bg-gray-100 text-gray-800': item.status === 'archived',
-                    })}>
+                    <span
+                      className={cn('px-2 py-1 rounded-full text-xs font-semibold', {
+                        'bg-green-100 text-green-800': item.status === 'published',
+                        'bg-yellow-100 text-yellow-800': item.status === 'draft',
+                        'bg-gray-100 text-gray-800': item.status === 'archived',
+                      })}
+                    >
                       {item.status}
                     </span>
                   </td>
