@@ -1,11 +1,11 @@
 # Project: Dashboard de Analytics
 
 ## Stack
-- React 18.3 + Vite 6
-- TypeScript 5.6 strict
-- Tailwind 3.4
-- Recharts 2.13
-- Vitest + RTL (unit), Playwright via MCP (E2E)
+- React 19.2 + Vite 8
+- TypeScript 6.0 strict
+- Tailwind 4.0
+- Recharts 3.3
+- Vitest 4 + RTL (unit), Playwright via MCP (E2E)
 
 ## Architecture
 - Atomic Design: src/components/{atoms,molecules,organisms}/
