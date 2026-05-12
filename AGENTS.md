@@ -24,3 +24,27 @@
 ## Constraints
 - Core Web Vitals: LCP < 2.5s, CLS < 0.1, INP < 200ms.
 - WCAG 2.1 AA, mobile-first.
+
+# Project: API Backend
+
+## Stack
+- Node 20 + Fastify 5
+- TypeScript 5.6 strict
+- Prisma 6 (Postgres)
+- Zod 4 (validación)
+- Vitest + Supertest
+
+## Database
+- Supabase Postgres
+- Migrations vía Supabase MCP
+- RLS habilitado por defecto
+
+## API conventions
+- REST, kebab-case URLs
+- Envelope error: { error, message, details }
+- JWT en cookie httpOnly + sameSite
+
+## Testing
+- 80% coverage mínimo
+- Integration contra DB real
+- No mocks

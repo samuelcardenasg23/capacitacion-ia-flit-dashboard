@@ -1,0 +1,51 @@
+# generated: 2026-05-11T23:05:00Z
+# last_updated: 2026-05-11T23:05:00Z
+# project: bmad
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: stories/
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+
+generated: 2026-05-11T23:05:00Z
+last_updated: 2026-05-11T23:05:00Z
+project: bmad
+project_key: NOKEY
+tracking_system: file-system
+story_location: stories/
+
+development_status:
+  epic-1: in-progress
+  1-1-autenticacion-y-multi-tenancy: done
+  1-2-creacion-de-transacciones-financieras: done
+  1-3-verificacion-de-row-level-security-rls: done
+  1-4-consulta-de-total-revenue-kpi: done
+  1-5-serie-temporal-de-revenue-mensual: backlog
+  1-6-listado-de-transacciones-con-paginacion: in-progress
+  1-7-filtrado-de-transacciones-por-fecha: backlog
+  1-8-calculo-de-ticket-promedio: backlog
+  1-9-validacion-estricta-con-zod: done
+  1-10-busqueda-de-transacciones-por-descripcion: backlog
+  1-11-categorizacion-de-gastos: backlog
+  1-12-distribucion-de-gastos-por-categoria: backlog
+  epic-1-retrospective: optional

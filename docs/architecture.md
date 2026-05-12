@@ -1,171 +1,180 @@
-# 🏗️ Arquitectura General
+# Technical Architecture - Flit Analytics Backend
 
-## Visión General
+**Author:** Winston (BMad Architect)
+**Date:** 2026-05-11
+**Version:** 1.0.0
 
-Flit Analytics Dashboard es una **Single Page Application (SPA)** construida con React 19 y TypeScript 6. Utiliza el patrón de diseño **Atomic Design** para organizar los componentes en capas de complejidad creciente.
-
----
-
-## Diagrama de Arquitectura
-
-```
-┌─────────────────────────────────────────────────────────────────┐
-│                         index.html                              │
-│                            │                                    │
-│                         main.tsx                                │
-│                      (React entry point)                        │
-│                            │                                    │
-│                         App.tsx                                 │
-│                   (BrowserRouter + Routes)                      │
-│                      ┌─────┴─────┐                              │
-│                      │           │                              │
-│                 /login      MainLayout                          │
-│                   │         (auth guard)                        │
-│                Login      ┌────┴────┐                           │
-│                           │         │                           │
-│                      /dashboard  /reports                       │
-│                        Dashboard  Reports                       │
-└─────────────────────────────────────────────────────────────────┘
-```
+## 1. Introduction
+This document defines the technical architecture for the Flit Analytics Backend. It follows a modular, layered structure optimized for a 3-hour implementation sprint using Node 20, Fastify 5, and Prisma 6.
 
 ---
 
-## Flujo de Datos
+## 2. Database Schema (Prisma 6)
 
+We use PostgreSQL (Supabase) with Row Level Security (RLS) enabled. The `organizationId` is the primary tenant separator.
+
+```prisma
+// server/prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Organization {
+  id           String        @id @default(uuid())
+  name         String
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+  users        User[]
+  transactions Transaction[]
+}
+
+model User {
+  id             String       @id @default(uuid())
+  email          String       @unique
+  password       String       // Argon2 hashed
+  organizationId String
+  organization   Organization @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime     @default(now())
+  updatedAt      DateTime     @updatedAt
+}
+
+enum TransactionType {
+  INCOME
+  EXPENSE
+}
+
+model Transaction {
+  id             String          @id @default(uuid())
+  amount         Decimal         @db.Decimal(12, 2)
+  type           TransactionType
+  category       String
+  description    String?
+  date           DateTime        @default(now())
+  organizationId String
+  organization   Organization    @relation(fields: [organizationId], references: [id])
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([organizationId, date])
+  @@index([organizationId, category])
+}
 ```
-┌─────────────┐     ┌──────────┐     ┌────────────┐     ┌────────────┐
-│   Mocks     │────▶│  Pages   │────▶│ Organisms  │────▶│  Molecules │
-│  (data.ts)  │     │          │     │            │     │  / Atoms   │
-└─────────────┘     └──────────┘     └────────────┘     └────────────┘
-                         │                                     ▲
-                         │           ┌────────────┐            │
-                         └──────────▶│   Hooks    │────────────┘
-                                     │ (useAuth)  │
-                                     └────────────┘
-```
-
-### Descripción del flujo
-
-1. **Datos (Mocks)**: Los datos se definen en `src/mocks/data.ts` y son importados directamente por las páginas.
-2. **Páginas**: Las páginas consumen datos y los pasan como props a los organisms.
-3. **Organisms**: Reciben datos tipados y los renderizan usando molecules y atoms.
-4. **Hooks**: Proveen lógica reutilizable (como `useAuth`) que se consume a cualquier nivel.
-
-> **Nota**: Actualmente no se usa un state manager global (Redux, Zustand). Los datos son estáticos y se pasan vía props. Para un futuro con datos reales, se recomienda implementar React Context o Zustand.
 
 ---
 
-## Capas de la Aplicación
+## 3. API Endpoints (REST)
 
-### 1. Entry Point (`main.tsx`)
+All endpoints (except login) require a valid JWT session.
 
-El punto de entrada renderiza `<App />` dentro de `<StrictMode>` e importa los estilos globales:
+### 3.1 Authentication
+| Method | Route | Request Body | Response |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/auth/login` | `{ email, password }` | `200 OK` + Cookies |
+| `POST` | `/auth/refresh` | `(From Cookie)` | `200 OK` + New Cookies |
+| `POST` | `/auth/logout` | `None` | `204 No Content` |
 
-```tsx
-createRoot(document.getElementById('root')!).render(
-  <StrictMode>
-    <App />
-  </StrictMode>,
-);
-```
+### 3.2 User & Org
+| Method | Route | Description | Response |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/me` | Get current user and org info | `{ id, email, organization: { id, name } }` |
 
-### 2. Router (`App.tsx`)
+### 3.3 Transactions
+| Method | Route | Description | Request Query/Body |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/transactions` | List (Paginated + Filter) | `?page=1&limit=10&startDate=...&endDate=...` |
+| `POST` | `/transactions` | Create new | `{ amount, type, category, description, date? }` |
+| `GET` | `/transactions/:id` | Get detail | `None` |
 
-Define todas las rutas de la aplicación usando `react-router-dom` v7:
-
-- **Rutas públicas**: `/login`
-- **Rutas protegidas**: Envueltas en `<MainLayout>` que actúa como auth guard
-- **Redirecciones**: `/` → `/dashboard`, rutas desconocidas → `/dashboard`
-
-### 3. Layout (`MainLayout.tsx`)
-
-Componente wrapper que:
-- Verifica el estado de autenticación via `useAuth()`
-- Muestra un loading state mientras se verifica la sesión
-- Redirige a `/login` si no hay sesión activa
-- Renderiza la estructura visual: `Sidebar + Header + <Outlet />`
-
-```
-┌─────────────────────────────────────────────┐
-│ ┌──────────┐ ┌────────────────────────────┐ │
-│ │          │ │         Header             │ │
-│ │          │ ├────────────────────────────┤ │
-│ │ Sidebar  │ │                            │ │
-│ │          │ │       <Outlet />           │ │
-│ │          │ │    (page content)          │ │
-│ │          │ │                            │ │
-│ └──────────┘ └────────────────────────────┘ │
-└─────────────────────────────────────────────┘
-```
-
-### 4. Componentes (Atomic Design)
-
-| Capa         | Responsabilidad                           | Ejemplo               |
-| ------------ | ----------------------------------------- | ---------------------- |
-| **Atoms**    | UI primitiva, sin lógica de negocio       | `Button`, `Card`       |
-| **Molecules**| Combinación de atoms con lógica mínima    | `KPICard`, `FormField` |
-| **Organisms**| Secciones completas con lógica            | `Header`, `SortableTable` |
-| **Pages**    | Composición de organisms + datos          | `Dashboard`, `Login`   |
-
-### 5. Hooks (`src/hooks/`)
-
-Custom hooks que encapsulan lógica reutilizable:
-- `useAuth()`: Manejo de autenticación (login, logout, estado del usuario)
-
-### 6. Types (`src/types/`)
-
-Tipos e interfaces compartidas:
-- `User`: Datos del usuario
-- `KPIData`: Métricas KPI
-- `ChartData`: Datos para gráficos
-- `ReportItem`: Items de reportes
-
-### 7. Utils (`src/utils/`)
-
-Funciones utilitarias:
-- `cn()`: Combinación de clases CSS con `clsx` + `tailwind-merge`
+### 3.4 Statistics (Analytics)
+| Method | Route | Description | Response |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/stats/total-revenue` | Total accumulated income | `{ total: number }` |
+| `GET` | `/stats/monthly-revenue` | Time series (last 12m) | `[{ month: string, total: number }]` |
+| `GET` | `/stats/average-ticket` | Revenue / Count | `{ average: number }` |
+| `GET` | `/stats/expenses-by-category` | Breakdown | `[{ category: string, total: number, percentage: number }]` |
 
 ---
 
-## Configuración de Build
+## 4. Layered Architecture
 
-### Vite (`vite.config.ts`)
+The project is divided into three main layers to separate concerns:
+
+1.  **Routes (Controllers)**:
+    - Registered via Fastify plugins.
+    - Handle input validation using **Zod 4**.
+    - Extract `organizationId` from request context (injected by Auth hook).
+2.  **Services (Business Logic)**:
+    - Perform complex calculations (KPIs, time-series grouping).
+    - Orchestrate multiple repository calls if needed.
+3.  **Repositories (Data Access)**:
+    - Thin layer over **Prisma 6**.
+    - Responsible for ensuring the `organizationId` is always included in the query (manual RLS enforcement at application level or via Prisma Extension).
+
+### RLS Implementation Pattern
+We will use a Prisma Extension to automatically filter all queries by the authenticated user's `organizationId`.
 
 ```typescript
-export default defineConfig({
-  plugins: [react(), tailwindcss()],
-  resolve: {
-    alias: {
-      '@': path.resolve(__dirname, './src'),
-    },
-  },
+// Example Logic
+const prisma = new PrismaClient().$extends({
+  query: {
+    transaction: {
+      async findMany({ args, query }) {
+        args.where = { ...args.where, organizationId: context.orgId };
+        return query(args);
+      }
+    }
+  }
 });
 ```
 
-**Características**:
-- Plugin de React con Oxc
-- Plugin de Tailwind CSS v4 (integración nativa)
-- Path alias `@` → `./src`
-- Configuración de Vitest embebida
+---
 
-### TypeScript (`tsconfig.app.json`)
+## 5. Security Strategy
 
-- **Target**: ES2023
-- **Module**: ESNext con resolución bundler
-- **Strict**: `noUnusedLocals`, `noUnusedParameters`, `noFallthroughCasesInSwitch`
-- **JSX**: react-jsx (automatic runtime)
-- **Path alias**: `@/*` → `./src/*`
+- **JWT Storage**: 
+    - `access_token`: Stored in `httpOnly`, `Secure`, `SameSite: Strict` cookie. Expires in 15 minutes.
+    - `refresh_token`: Stored in `httpOnly`, `Secure`, `SameSite: Strict` cookie. Expires in 7 days.
+- **Validation**: 
+    - Use `z.strictObject()` for all request payloads.
+    - Use `z.email()` and `z.uuid()` for format checks.
+- **Database**:
+    - Row Level Security (RLS) enabled in PostgreSQL.
+    - Application user connects to Postgres with a limited role.
 
 ---
 
-## Decisiones Arquitectónicas
+## 6. Error Handling
 
-| Decisión | Justificación |
-| --- | --- |
-| **Atomic Design** | Promueve reutilización, consistencia visual y facilita testing unitario |
-| **Mock data estático** | Proyecto de capacitación; datos simulados permiten desarrollo sin backend |
-| **localStorage para auth** | Simula persistencia de sesión sin infraestructura real |
-| **Co-locación de tests** | Tests junto a componentes mejoran la mantenibilidad |
-| **Tailwind v4 @theme** | CSS-first config, mejor rendimiento que tailwind.config.js |
-| **react-router-dom v7** | Routing declarativo con layout routes para auth guard |
-| **Sin state manager** | Complejidad actual no lo justifica; fácil agregar Zustand si es necesario |
+All errors follow a unified envelope.
+
+```typescript
+interface ErrorResponse {
+  error: string;    // e.g. "VALIDATION_ERROR"
+  message: string;  // e.g. "Amount must be positive"
+  details: any;     // e.g. Zod error details or null
+}
+```
+
+---
+
+## 7. Environment Variables
+
+```bash
+# Database
+DATABASE_URL="postgresql://user:pass@host:5432/db?schema=public"
+
+# Authentication
+JWT_SECRET="super-secret-key"
+REFRESH_TOKEN_SECRET="another-super-secret-key"
+COOKIE_SECRET="cookie-signing-key"
+
+# App
+PORT=3000
+NODE_ENV="development"
+```
