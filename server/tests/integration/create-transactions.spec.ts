@@ -1,7 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-// Base URL for the API. Assuming the server runs on localhost:3000
-const baseURL = 'http://localhost:3000';
+const baseURL = 'http://localhost:3001';
 
 test.describe('POST /transactions API', () => {
   // TC01: Happy Path con datos válidos
