@@ -23,8 +23,7 @@ export function useAuth() {
   };
 
   const logout = () => {
-    // BUG: localStorage no se limpia, causando que el usuario se reloguee automáticamente
-    // localStorage.removeItem('auth_fake');
+    localStorage.removeItem('auth_fake');
     setUser(null);
   };
 
