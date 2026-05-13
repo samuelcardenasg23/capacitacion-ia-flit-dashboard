@@ -24,7 +24,8 @@ export function useAuth() {
 
   const logout = () => {
     localStorage.removeItem('auth_fake');
-    setUser(null);
+    // BUG: El estado del usuario no se limpia, causando que el botón logout no funcione
+    // setUser(null);
   };
 
   return { user, login, logout, isLoading, isAuthenticated: !!user };
